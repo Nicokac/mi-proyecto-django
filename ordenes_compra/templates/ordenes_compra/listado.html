@@ -1,0 +1,58 @@
+<!--ordenes_compra\templates\ordenes_compra\listado.html-->
+{% extends 'base.html' %}
+
+{% block contenido %}
+<h2>Órdenes de Compra</h2>
+
+<form method="get" style="margin-bottom: 15px;">
+  <input type="text" name="q" placeholder="Buscar por N° orden..." value="{{ query }}">
+
+  {% if user.is_staff %}
+    <select name="proveedor">
+      <option value="">-- Todos los proveedores --</option>
+      {% for p in proveedores %}
+        <option value="{{ p.id }}" {% if p.id|stringformat:"s" == proveedor_id %}selected{% endif %}>
+          {{ p.nombre }}
+        </option>
+      {% endfor %}
+    </select>
+  {% endif %}
+
+  Desde: <input type="date" name="desde" value="{{ fecha_desde }}">
+  Hasta: <input type="date" name="hasta" value="{{ fecha_hasta }}">
+
+  <button type="submit">Filtrar</button>
+  <a href="{% url 'listar_ordenes' %}"><button type="button">Limpiar filtros</button></a>
+</form>
+
+<table border="1" cellpadding="5">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Proveedor</th>
+      <th>Fecha</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for orden in ordenes %}
+    <tr>
+      <td>{{ orden.id }}</td>
+      <td>{{ orden.proveedor.nombre }}</td>
+      <td>{{ orden.fecha_emision }}</td>
+      <td>{{ orden.estado|yesno:"Activa,Inactiva" }}</td>
+      <td>
+        <a href="{% url 'detalle_orden' orden.id %}">Ver detalles</a>
+        {% if orden.estado %}
+          <a href="{% url 'dar_baja_orden' orden.id %}" onclick="return confirm('¿Estás seguro de que querés dar de baja esta orden de compra?');">Dar de baja</a>
+        {% endif %}
+        {% if user.is_staff %}
+  |       <a href="{% url 'modificar_orden' orden.id %}">Modificar</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

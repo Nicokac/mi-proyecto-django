@@ -1,0 +1,124 @@
+<!--ordenes_compra\templates\ordenes_compra\modificar.html-->
+{% extends 'base.html' %}
+{% block contenido %}
+  <h2>Modificar Orden de Compra #{{ orden.id }}</h2>
+  <form method="post">
+    {% csrf_token %}
+
+    {% if user.is_staff %}
+      <div>
+        {{ form.proveedor.label_tag }} {{ form.proveedor }}
+        {% if form.proveedor.errors %}
+          <div class="error">{{ form.proveedor.errors }}</div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {{ formset.management_form }}
+
+    {% if formset.non_form_errors %}
+      <div class="error">
+        {{ formset.non_form_errors }}
+      </div>
+    {% endif %}
+
+    <table id="formset-table">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Eliminar</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for form in formset %}
+          <tr class="form-row">
+            <td>
+              {{ form.id }} {# campo oculto #}
+              {{ form.producto }}
+              {% if form.producto.errors %}
+                <div class="error">{{ form.producto.errors }}</div>
+              {% endif %}
+            </td>
+            <td>
+              {{ form.cantidad }}
+              {% if form.cantidad.errors %}
+                <div class="error">{{ form.cantidad.errors }}</div>
+              {% endif %}
+            </td>
+            <td>
+              {% if form.can_delete %}
+                {{ form.DELETE }} Eliminar
+              {% endif %}
+            </td>
+            <td>
+              <span class="subtotal-label">
+                <span class="subtotal" id="subtotal-{{ forloop.counter0 }}">$0.00</span>
+              </span>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <button type="button" id="agregar-fila">+ Agregar producto</button>
+    <br><br>
+    <button type="submit">Guardar cambios</button>
+  </form>
+
+  <script>
+    const precios = JSON.parse('{{ productos_json|escapejs }}');
+
+    function actualizarSubtotal(row) {
+      const productoSelect = row.querySelector('[name$="-producto"]');
+      const cantidadInput = row.querySelector('[name$="-cantidad"]');
+      const subtotalSpan = row.querySelector('.subtotal');
+
+      function calcular() {
+        const productoId = productoSelect.value;
+        const cantidad = parseInt(cantidadInput.value) || 0;
+        const precio = precios[productoId] || 0;
+        subtotalSpan.textContent = `$${(cantidad * precio).toFixed(2)}`;
+      }
+
+      productoSelect.addEventListener("change", calcular);
+      cantidadInput.addEventListener("input", calcular);
+      calcular();  // Inicial
+    }
+
+    document.querySelectorAll('.form-row').forEach(actualizarSubtotal);
+
+    document.getElementById("agregar-fila").addEventListener("click", function () {
+      const formsetTable = document.getElementById("formset-table").getElementsByTagName('tbody')[0];
+      const totalForms = document.querySelector('[name="detalles-TOTAL_FORMS"]');
+      const currentCount = parseInt(totalForms.value);
+
+      const lastRow = formsetTable.querySelector(".form-row:last-of-type");
+      const newRow = lastRow.cloneNode(true);
+
+      newRow.querySelectorAll("input, select, span, div.error").forEach(function (element) {
+        if (element.name) {
+          element.name = element.name.replace(`-${currentCount - 1}-`, `-${currentCount}-`);
+        }
+        if (element.id) {
+          element.id = element.id.replace(`-${currentCount - 1}-`, `-${currentCount}-`);
+        }
+        if (element.tagName === 'SPAN' && element.classList.contains('subtotal')) {
+          element.textContent = "$0.00";
+        }
+        if (element.tagName === 'INPUT') {
+          element.value = "";
+        }
+        if (element.classList.contains('error')) {
+          element.remove();
+        }
+      });
+
+      formsetTable.appendChild(newRow);
+      totalForms.value = currentCount + 1;
+      actualizarSubtotal(newRow);
+    });
+  </script>
+{% endblock %}
+

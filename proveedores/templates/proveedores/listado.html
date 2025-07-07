@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <h2>Listado de Proveedores</h2>
+
+<form method="get" style="display: inline;">
+  <input type="text" name="q" placeholder="Buscar..." value="{{ query }}">
+  <button type="submit">Buscar</button>
+</form>
+
+{% if query %}
+  <form method="get" action="" style="display: inline;">
+    <button type="submit">Limpiar filtro</button>
+  </form>
+{% endif %}
+
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Contacto</th>
+        <th>Email</th>
+        <th>Dirección</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for proveedor in proveedores %}
+        <tr{% if not proveedor.estado %} style="color: gray;"{% endif %}>
+          <td>{{ proveedor.nombre }}</td>
+          <td>{{ proveedor.apellido }}</td>
+          <td>{{ proveedor.telefono }}</td>
+          <td>{{ proveedor.email }}</td>
+          <td>{{ proveedor.direccion }}</td>
+          <td>
+            {% if proveedor.estado %}
+                Activo
+            {% else %}
+                Inactivo
+            {% endif %}
+          </td>
+          <td>
+            {% if proveedor.estado %}
+              <a href="{% url 'editar_proveedor' proveedor.id %}">Editar</a> |
+              <a href="{% url 'dar_baja_proveedor' proveedor.id %}">Dar de baja</a>
+            {% else %}
+              <a href="{% url 'reactivar_proveedor' proveedor.id %}">Reactivar</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

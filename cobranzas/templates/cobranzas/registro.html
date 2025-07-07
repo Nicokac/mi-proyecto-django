@@ -1,0 +1,38 @@
+<!--cobranzas\templates\cobranzas\registro.html-->
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <h2>Registrar Cobranza</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit">Guardar</button>
+  </form>
+
+  <br>
+  <a href="{% url 'listar_facturas' %}">⬅ Volver</a>
+
+  <script>
+    const facturaTotales = JSON.parse('{{ facturas_json|escapejs }}');
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const facturaSelect = document.getElementById("id_factura");
+      const montoInput = document.getElementById("id_monto");
+
+      function actualizarMonto() {
+        const facturaId = facturaSelect.value;
+        const monto = facturaTotales[facturaId];
+        if (monto !== undefined) {
+          montoInput.value = monto;
+        } else {
+          montoInput.value = '';
+        }
+      }
+
+      facturaSelect.addEventListener("change", actualizarMonto);
+      actualizarMonto(); // setear valor inicial
+    });
+  </script>
+{% endblock %}

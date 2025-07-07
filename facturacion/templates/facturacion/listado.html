@@ -1,0 +1,81 @@
+<!--facturacion\templates\listado.html-->
+{% extends 'base.html' %}
+
+{% block contenido %}
+<form method="get" class="mb-3">
+  <input type="text" name="numero" placeholder="Nro Factura" value="{{ filtros.numero }}">
+
+  {% if request.user.is_staff %}
+    <select name="cliente">
+      <option value="">-- Todos los clientes --</option>
+      {% for cliente in clientes %}
+        <option value="{{ cliente.id }}" {% if filtros.cliente == cliente.id|stringformat:"s" %}selected{% endif %}>
+          {{ cliente.nombre }} {{ cliente.apellido }}
+        </option>
+      {% endfor %}
+    </select>
+  {% endif %}
+
+  <label>Desde:</label>
+  <input type="date" name="desde" value="{{ filtros.desde }}">
+
+  <label>Hasta:</label>
+  <input type="date" name="hasta" value="{{ filtros.hasta }}">
+
+  <!-- 📌 Filtro por estado -->
+  <select name="estado">
+    <option value="">-- Todos los estados --</option>
+    <option value="pendiente" {% if filtros.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+    <option value="pagada" {% if filtros.estado == 'pagada' %}selected{% endif %}>Pagada</option>
+  </select>
+
+  <button type="submit">Filtrar</button>
+
+  {% if filtros.numero or filtros.cliente or filtros.desde or filtros.hasta or filtros.estado %}
+    <a href="{% url 'listar_facturas' %}">Limpiar filtros</a>
+  {% endif %}
+</form>
+<table border="1" cellpadding="5">
+  <thead>
+    <tr>
+      <th>Número</th>
+      <th>Productos</th>
+      <th>Cantidad</th>
+      <th>Cliente</th>
+      <th>Fecha</th>
+      <th>Total</th>
+      <th>Estado</th> <!-- Nueva columna -->
+      <th>Detalle</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for factura in facturas %}
+      <tr>
+        <td>{{ factura.numero }}</td>
+        <td>
+          {% for detalle in factura.orden.detalles.all %}
+            {{ detalle.producto.nombre }}<br>
+          {% endfor %}
+        </td>
+        <td>
+          {% for detalle in factura.orden.detalles.all %}
+            {{ detalle.cantidad }}<br>
+          {% endfor %}
+        </td>
+        <td>{{ factura.cliente.nombre }} {{ factura.cliente.apellido }}</td>
+        <td>{{ factura.fecha|date:"d/m/Y H:i" }}</td>
+        <td>${{ factura.total }}</td>
+        <td>
+          {{ factura.get_estado_display }}
+          {% if request.user.is_staff %}
+            <br><a href="{% url 'modificar_estado_factura' factura.id %}">✏️ Cambiar estado</a>
+          {% endif %}
+        </td>
+        <td><a href="{% url 'detalle_factura' factura.id %}">Ver</a></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="8">No se encontraron facturas.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

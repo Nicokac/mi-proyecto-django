@@ -1,0 +1,16 @@
+<!--productos\templates\productos\formulario.html-->
+{% extends 'base.html' %}
+
+{% block contenido %}
+  {% if editar %}
+    <h2>Editar Producto</h2>
+  {% else %}
+    <h2>Registrar Producto</h2>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar</button>
+  </form>
+{% endblock %}

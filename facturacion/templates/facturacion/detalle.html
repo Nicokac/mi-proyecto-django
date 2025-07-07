@@ -1,0 +1,35 @@
+<!--facturacion\templates\detalle.html-->
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <h2>Factura {{ factura.numero }}</h2>
+
+  <p><strong>Cliente:</strong> {{ factura.cliente.nombre }} {{ factura.cliente.apellido }}</p>
+  <p><strong>Fecha de Emisión:</strong> {{ factura.fecha|date:"d/m/Y H:i" }}</p>
+  <p><strong>Total:</strong> ${{ factura.total }}</p>
+
+  <h4>Detalle de Productos</h4>
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio Unitario</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for detalle in factura.orden.detalles.all %}
+        <tr>
+          <td>{{ detalle.producto.nombre }}</td>
+          <td>{{ detalle.cantidad }}</td>
+          <td>${{ detalle.precio_unitario }}</td>
+          <td>${{ detalle.subtotal }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <br>
+  <a href="{% url 'listar_facturas' %}">⬅ Volver al listado</a>
+{% endblock %}

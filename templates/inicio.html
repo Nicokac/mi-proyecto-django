@@ -1,0 +1,7 @@
+<!--C:\Users\kachu\Python user\Django\tp_ing_soft_ii\templates\inicio.html-->
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <h2>Bienvenido, {{ request.user.nombre }}!</h2>
+  <p>Este es el panel principal del sistema. Usá la navegación de la superior para moverte por el sistema.</p>
+{% endblock %}

@@ -1,0 +1,41 @@
+<!--ordenes_compra\templates\ordenes_compra\detalle.html-->
+{% extends 'base.html' %}
+
+{% block contenido %}
+<h2>Detalle de Orden #{{ orden.id }}</h2>
+
+<p><strong>Proveedor:</strong> {{ orden.proveedor.nombre }}</p>
+<p><strong>Fecha:</strong> {{ orden.fecha_emision }}</p>
+<p><strong>Estado:</strong> {{ orden.estado|yesno:"Activa,Inactiva" }}</p>
+
+<table border="1" cellpadding="5">
+  <thead>
+    <tr>
+      <th>Producto</th>
+      <th>Precio Unitario</th>
+      <th>Cantidad</th>
+      <th>Subtotal</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in orden.detalles.all %}
+    <tr>
+      <td>{{ item.producto.nombre }}</td>
+      <td>{{ item.precio_unitario }}</td>
+      <td>{{ item.cantidad }}</td>
+      <td>{{ item.subtotal|floatformat:2 }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h3>Historial de modificaciones</h3>
+<ul>
+  {% for mod in orden.modificaciones.all %}
+    <li>{{ mod.fecha }} - {{ mod.usuario.username }}: {{ mod.descripcion }}</li>
+  {% empty %}
+    <li>No hay modificaciones registradas.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
+

@@ -1,0 +1,59 @@
+<!--cobranzas\templates\cobranzas\modificar.html-->
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <h2>Modificar Cobranza</h2>
+  <form method="post">
+    {% csrf_token %}
+
+    <p>
+      <strong>Factura:</strong> {{ factura_obj }}
+      <input type="hidden" name="factura" value="{{ form.factura.value }}">
+      {% if form.factura.errors %}
+        <ul>
+          {% for error in form.factura.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </p>
+
+    <p>
+      {{ form.tipo_pago.label_tag }} {{ form.tipo_pago }}
+      {% if form.tipo_pago.errors %}
+        <ul>
+          {% for error in form.tipo_pago.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </p>
+
+    <p>
+      {{ form.monto.label_tag }} {{ form.monto.value }}
+      <input type="hidden" name="monto" value="{{ form.monto.value }}">
+      {% if form.monto.errors %}
+        <ul>
+          {% for error in form.monto.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </p>
+
+    {% if form.non_field_errors %}
+      <ul>
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <button type="submit">Guardar cambios</button>
+  </form>
+
+  <br>
+  <a href="{% url 'listar_cobranzas' %}">⬅ Volver al listado</a>
+{% endblock %}
+
+

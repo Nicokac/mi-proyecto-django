@@ -1,0 +1,59 @@
+<!-- C:\Users\kachu\Python user\Django\tp_ing_soft_ii\templates\productos -->
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <h2>Listado de Productos</h2>
+
+  <form method="get" style="display: inline;">
+    <input type="text" name="q" placeholder="Buscar..." value="{{ query }}">
+    <button type="submit">Buscar</button>
+  </form>
+
+  {% if query %}
+    <form method="get" action="" style="display: inline;">
+      <button type="submit">Limpiar filtro</button>
+    </form>
+  {% endif %}
+
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>SKU</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th>Estado</th>
+        {% if user.is_staff %}
+          <th>Acciones</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for producto in productos %}
+        <tr{% if not producto.estado %} style="color: gray;"{% endif %}>
+          <td>{{ producto.nombre }}</td>
+          <td>{{ producto.sku }}</td>
+          <td>${{ producto.precio }}</td>
+          <td>{{ producto.stock }}</td>
+          <td>
+            {% if producto.estado %}
+              Activo
+            {% else %}
+              Inactivo
+            {% endif %}
+          </td>
+          {% if user.is_staff %}
+          <td>
+            {% if producto.estado %}
+              <a href="{% url 'editar_producto' producto.id %}">Editar</a> |
+              <a href="{% url 'dar_baja_producto' producto.id %}">Dar de baja</a>
+            {% else %}
+              <a href="{% url 'reactivar_producto' producto.id %}">Reactivar</a>
+            {% endif %}
+          </td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -1,0 +1,20 @@
+<!--facturacion\templates\facturacion\modfificar_estado.html-->
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <h2>Modificar Estado de la Factura {{ factura.numero }}</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    <label for="estado">Nuevo Estado:</label>
+    <select name="estado" id="estado">
+      <option value="pendiente" {% if factura.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+      <option value="pagada" {% if factura.estado == 'pagada' %}selected{% endif %}>Pagada</option>
+    </select>
+
+    <br><br>
+    <button type="submit">Guardar Cambios</button>
+    <a href="{% url 'listar_facturas' %}">Cancelar</a>
+  </form>
+{% endblock %}
+

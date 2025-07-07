@@ -1,0 +1,142 @@
+<!-- ordenes_compra/templates/ordenes_compra/registro.html -->
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block contenido %}
+  <h2>Registrar Orden de Compra</h2>
+  <form method="post">
+    {% csrf_token %}
+    
+    {% if user.is_staff %}
+      <div>
+        {{ form.proveedor.label_tag }} {{ form.proveedor }}
+        {% if form.proveedor.errors %}
+          <div class="error">{{ form.proveedor.errors }}</div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {{ formset.management_form }}
+
+    <table id="formset-table">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for form in formset %}
+          <tr class="form-row">
+            <td>
+              {{ form.producto }}
+              {% if form.producto.errors %}
+                <div class="error">{{ form.producto.errors }}</div>
+              {% endif %}
+            </td>
+            <td>
+              {{ form.cantidad }}
+              {% if form.cantidad.errors %}
+                <div class="error">{{ form.cantidad.errors }}</div>
+              {% endif %}
+            </td>
+            <td>
+              <span class="subtotal-label">
+                <span class="subtotal" id="subtotal-{{ forloop.counter0 }}">$0.00</span>
+              </span>
+              {% if user.is_staff %}
+                <div style="font-size: 0.9em; margin-top: 4px;">
+                  <!-- <strong>Precio:</strong>
+                  <span class="precio" data-producto-id="{{ form.producto.value }}">
+                    {{ productos_dict|get_item:form.producto.value|stringformat:"s" }}
+                  </span><br>
+                  <strong>Stock:</strong>
+                  <span class="stock">
+                    {% for p in productos %}
+                      {% if p.id|stringformat:"s" == form.producto.value %}
+                        {{ p.stock }}
+                      {% endif %}
+                    {% endfor %}
+                  </span> -->
+                  <strong>Precio:</strong> <span class="precio">$0.00</span><br>
+                  <strong>Stock:</strong> <span class="stock">-</span>
+                </div>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <button type="button" id="agregar-fila">+ Agregar producto</button>
+    <br><br>
+    <button type="submit">Registrar orden</button>
+  </form>
+
+  <style>
+    .error {
+      color: red;
+      font-size: 0.9em;
+    }
+  </style>
+
+  <script>
+    const precios = JSON.parse('{{ productos_json|escapejs }}');
+    const stocks = JSON.parse('{{ stocks_json|escapejs }}');
+
+    function actualizarSubtotal(row) {
+      const productoSelect = row.querySelector('[name$="-producto"]');
+      const cantidadInput = row.querySelector('[name$="-cantidad"]');
+      const subtotalSpan = row.querySelector('.subtotal');
+      const precioSpan = row.querySelector('.precio');
+      const stockSpan = row.querySelector('.stock');
+
+      function calcular() {
+        const productoId = productoSelect.value;
+        const cantidad = parseInt(cantidadInput.value) || 0;
+        const precio = precios[productoId] || 0;
+        const stock = stocks[productoId] !== undefined ? stocks[productoId] : '-';
+        subtotalSpan.textContent = `$${(cantidad * precio).toFixed(2)}`;
+        if (precioSpan) precioSpan.textContent = `$${precio.toFixed(2)}`;
+        if (stockSpan) stockSpan.textContent = stock;
+      }
+
+      productoSelect.addEventListener("change", calcular);
+      cantidadInput.addEventListener("input", calcular);
+      calcular(); // Inicial
+    }
+
+    document.querySelectorAll('.form-row').forEach(actualizarSubtotal);
+
+    document.getElementById("agregar-fila").addEventListener("click", function () {
+      const formsetTable = document.getElementById("formset-table").getElementsByTagName('tbody')[0];
+      const totalForms = document.querySelector('[name="detalles-TOTAL_FORMS"]');
+      const currentCount = parseInt(totalForms.value);
+
+      const lastRow = formsetTable.querySelector(".form-row:last-of-type");
+      const newRow = lastRow.cloneNode(true);
+
+      newRow.querySelectorAll("input, select, span, div.error").forEach(function (element) {
+        if (element.name) {
+          element.name = element.name.replace(`-${currentCount - 1}-`, `-${currentCount}-`);
+        }
+        if (element.id) {
+          element.id = element.id.replace(`-${currentCount - 1}-`, `-${currentCount}-`);
+        }
+        if (element.tagName === 'SPAN' && element.classList.contains('subtotal')) {
+          element.textContent = "$0.00";
+        }
+        if (element.tagName === 'INPUT') {
+          element.value = "";
+        }
+        if (element.classList.contains('error')) {
+          element.remove();
+        }
+      });
+
+      formsetTable.appendChild(newRow);
+      totalForms.value = currentCount + 1;
+      actualizarSubtotal(newRow);
+    });
+  </script>
+{% endblock %}

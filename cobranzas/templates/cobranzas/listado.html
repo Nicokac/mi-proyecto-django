@@ -1,0 +1,72 @@
+<!--cobranzas\templates\cobranzas\listado.html-->
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <h2>Listado de Cobranzas</h2>
+
+  <form method="get" style="margin-bottom: 20px;">
+    <input type="text" name="numero" placeholder="N° Factura" value="{{ filtros.numero }}">
+
+    {% if request.user.is_staff %}
+      <select name="cliente">
+        <option value="">Todos los clientes</option>
+        {% for c in clientes %}
+          <option value="{{ c.id }}" {% if filtros.cliente == c.id|stringformat:"s" %}selected{% endif %}>
+            {{ c.nombre }} {{ c.apellido }}
+          </option>
+        {% endfor %}
+      </select>
+    {% endif %}
+
+    <select name="tipo_pago">
+      <option value="">Todos los métodos</option>
+      {% for key, label in tipo_pago %}
+        <option value="{{ key }}" {% if filtros.tipo_pago == key %}selected{% endif %}>
+          {{ label }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <button type="submit">Filtrar</button>
+    {% if filtros.numero or filtros.cliente or filtros.tipo_pago %}
+      <a href="{% url 'listar_cobranzas' %}">Limpiar filtros</a>
+    {% endif %}
+  </form>
+
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr>
+        <th>N° Factura</th>
+        <th>Cliente</th>
+        <th>Tipo de Pago</th>
+        <th>Monto</th>
+        <th>Fecha de Pago</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in cobranzas %}
+        <tr>
+          <td>{{ c.factura.numero }}</td>
+          <td>{{ c.cliente.nombre }} {{ c.cliente.apellido }}</td>
+          <td>{{ c.get_tipo_pago_display }}</td>
+          <td>${{ c.monto }}</td>
+          <td>{{ c.fecha_pago|date:"d/m/Y H:i" }}</td>
+          <td>
+            {% if c.factura.estado == 'pendiente' %}
+              <a href="{% url 'modificar_cobranza' c.id %}">✏️ Modificar</a>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6">No se encontraron cobranzas.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <br>
+  <a href="{% url 'registrar_cobranza' %}">Registrar nueva cobranza</a>
+{% endblock %}
+
