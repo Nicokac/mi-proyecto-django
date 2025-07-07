@@ -37,8 +37,6 @@ def listar_proveedores(request):
         )
     else:
         proveedores = Proveedor.objects.all()
-
-        proveedores = Proveedor.objects.all()
     return render(request, 'proveedores/listado.html', {'proveedores': proveedores})
 
 @login_required
