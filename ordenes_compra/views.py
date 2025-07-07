@@ -33,7 +33,7 @@ def registrar_orden_compra(request):
                     # Asociar cliente desde el usuario logueado
                     cliente_obj = Clientes.objects.get(usuario=request.user)
                     orden.cliente = cliente_obj
-                    proveedor_default = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
+                    proveedor_default = Proveedor.objects.get(nombre__iexact="Café El Mejor")
                     orden.proveedor = proveedor_default
                     orden.tipo = 'cliente'
                     print(f"👤 Cliente: asignado proveedor Café El Mejor")
@@ -87,7 +87,7 @@ def registrar_orden_compra(request):
         print("📄 GET recibido")
 
         if request.user.is_staff:
-            proveedores = Proveedor.objects.exclude(nombre__iexact="Cafe El Mejor")
+            proveedores = Proveedor.objects.exclude(nombre__iexact="Café El Mejor")
             form = OrdenDeCompraForm()
             form.fields['proveedor'].queryset = proveedores
         else:
@@ -97,7 +97,7 @@ def registrar_orden_compra(request):
         formset = DetalleOrdenFormSet()
 
     if not request.user.is_staff:
-        proveedor_default = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
+        proveedor_default = Proveedor.objects.get(nombre__iexact="Café El Mejor")
         productos_activos = Producto.objects.filter(estado=True, proveedor=proveedor_default)
     else:
         productos_activos = Producto.objects.filter(estado=True)
