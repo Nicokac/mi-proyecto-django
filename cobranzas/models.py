@@ -1,6 +1,5 @@
 #cobranzas\models.py
 from django.db import models
-from django.db import models
 from facturacion.models import Factura
 from clientes.models import Clientes
 
