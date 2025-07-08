@@ -13,8 +13,8 @@ class OrdenDeCompraForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Excluir "Café El Mejor"
-        self.fields['proveedor'].queryset = Proveedor.objects.exclude(nombre__iexact="Café El Mejor")
+        # Excluir "Cafe El Mejor"
+        self.fields['proveedor'].queryset = Proveedor.objects.exclude(nombre__iexact="Cafe El Mejor")
 
         # Que sea obligatorio solo para admin
         self.fields['proveedor'].required = False

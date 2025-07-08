@@ -20,7 +20,7 @@
 
     <select name="tipo_pago">
       <option value="">Todos los métodos</option>
-      {% for key, label in tipo_pago %}
+      {% for key, label in TIPOS_PAGO %}
         <option value="{{ key }}" {% if filtros.tipo_pago == key %}selected{% endif %}>
           {{ label }}
         </option>
@@ -53,7 +53,14 @@
           <td>${{ c.monto }}</td>
           <td>{{ c.fecha_pago|date:"d/m/Y H:i" }}</td>
           <td>
-            {% if c.factura.estado == 'pendiente' %}
+            {% if not c.baja and c.factura.estado in "anulada,error" %}
+              <a href="{% url 'baja_cobranza' c.id %}">🗑️ Dar de baja</a>
+            {% elif c.baja %}
+              <span style="color: red;">Baja</span>
+              {% if c.motivo_baja %}
+                <br><small>({{ c.motivo_baja }})</small>
+              {% endif %}
+            {% elif c.factura.estado == 'pendiente' %}
               <a href="{% url 'modificar_cobranza' c.id %}">✏️ Modificar</a>
             {% else %}
               —
@@ -62,7 +69,7 @@
         </tr>
       {% empty %}
         <tr><td colspan="6">No se encontraron cobranzas.</td></tr>
-      {% endfor %}
+  {% endfor %}
     </tbody>
   </table>
 

@@ -1,5 +1,5 @@
 # cobranzas\views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import CobranzaForm
 from facturacion.models import Factura
@@ -9,6 +9,8 @@ from datetime import datetime
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 from django.contrib import messages
+from django.utils import timezone
+from .models import Cobranza
 
 @login_required
 def registrar_cobranza(request):
@@ -123,5 +125,31 @@ def modificar_cobranza(request, cobranza_id):
         'factura_obj': factura_obj,
     })
 
+@login_required
+def baja_cobranza(request, cobranza_id):
+    cobranza = get_object_or_404(Cobranza, pk=cobranza_id)
+    # Solo admin o dueño de la cobranza pueden dar de baja
+    if not (request.user.is_staff or cobranza.cliente.usuario == request.user):
+        messages.error(request, "No tiene permiso para dar de baja esta cobranza.")
+        return redirect('listar_cobranzas')
+
+    # Solo se puede dar de baja si la factura está 'anulada' o 'error'
+    if cobranza.factura.estado not in ['anulada', 'error']:
+        messages.error(request, "Solo puede darse de baja cobranzas asociadas a facturas anuladas o con error.")
+        return redirect('listar_cobranzas')
+
+    if request.method == 'POST':
+        motivo = request.POST.get('motivo_baja', '').strip()
+        if motivo:
+            cobranza.baja = True
+            cobranza.motivo_baja = motivo
+            cobranza.fecha_baja = timezone.now()
+            cobranza.save()
+            messages.success(request, "Cobranza dada de baja correctamente.")
+            return redirect('listar_cobranzas')
+        else:
+            messages.error(request, "Debe ingresar un motivo de baja.")
+
+    return render(request, 'cobranzas/baja.html', {'cobranza': cobranza})
 
 

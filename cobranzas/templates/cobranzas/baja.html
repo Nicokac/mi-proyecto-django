@@ -1,0 +1,19 @@
+<!--cobranzas\templates\cobranzas\baja.html-->
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <h2>Dar de baja cobranza</h2>
+  <p>
+    <strong>Cobranza:</strong> #{{ cobranza.id }}<br>
+    <strong>Factura:</strong> {{ cobranza.factura }}<br>
+    <strong>Monto:</strong> ${{ cobranza.monto }}<br>
+    <strong>Cliente:</strong> {{ cobranza.cliente }}
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <label for="motivo_baja">Motivo de baja:</label><br>
+    <textarea name="motivo_baja" required rows="3" cols="50"></textarea><br>
+    <button type="submit">Confirmar baja</button>
+    <a href="{% url 'listar_cobranzas' %}">Cancelar</a>
+  </form>
+{% endblock %}

@@ -18,7 +18,7 @@ def registrar_producto(request):
         form = ProductoForm(request.POST)
         if form.is_valid():
             nuevo_producto = form.save(commit=False)
-            proveedor_default = Proveedor.objects.get(nombre__iexact="Café El Mejor")
+            proveedor_default = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
             nuevo_producto.proveedor = proveedor_default
             nuevo_producto.save()
             return redirect('/inicio')
