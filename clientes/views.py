@@ -1,3 +1,4 @@
+# C:\Users\kachu\Python user\Django\tp_ing_soft_ii\clientes\views.py
 from django.shortcuts import render, redirect
 from .forms import ClientesForm
 from django.http import HttpResponseForbidden
@@ -6,6 +7,7 @@ from .models import Clientes
 from django.shortcuts import get_object_or_404
 from .forms import ClientesForm
 from django.contrib import messages
+from django.db.models import Q
 
 @login_required
 def registrar_cliente(request):
@@ -20,17 +22,6 @@ def registrar_cliente(request):
         form = ClientesForm()
 
     return render(request, 'clientes/registro.html', {'form': form})
-
-# @login_required
-# def listar_clientes(request):
-#     if not request.user.is_superuser:
-#         #return render(request, 'no_autorizado.html')  # Podés crear esta plantilla opcionalmente
-#         return HttpResponseForbidden("No tenés permisos para acceder a esta vista.")
-
-#     clientes = Clientes.objects.all().order_by('-estado', 'apellido')
-#     return render(request, 'clientes/listado.html', {'clientes': clientes})
-
-from django.db.models import Q  # ya importado si filtrás por condiciones OR
 
 @login_required
 def listar_clientes(request):

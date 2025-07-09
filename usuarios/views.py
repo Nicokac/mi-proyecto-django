@@ -38,6 +38,21 @@ def login_usuario(request):
             print('Resultado:', usuario)
 
             if usuario is not None:
+                # Si es staff o superuser, lo dejamos pasar siempre
+                if usuario.is_staff or usuario.is_superuser:
+                    login(request, usuario)
+                    return redirect('/')
+                # Chequear si es cliente y si está activo
+                try:
+                    from clientes.models import Clientes
+                    cliente = Clientes.objects.get(usuario=usuario)
+                    if not cliente.estado:
+                        form.add_error(None, 'Tu cuenta está inactiva. Consultá con el administrador.')
+                        return render(request, 'usuarios/login.html', {'form': form})
+                except Clientes.DoesNotExist:
+                    # No es cliente asociado
+                    pass
+
                 login(request, usuario)
                 return redirect('/')
             else:
@@ -45,7 +60,6 @@ def login_usuario(request):
     else:
         form = LoginForm()
     return render(request, 'usuarios/login.html', {'form': form})
-
 
 def logout_usuario(request):
     logout(request)

@@ -1,3 +1,4 @@
+<!--templates\clientes\listado.html-->
 {% extends 'base.html' %}
 
 {% block contenido %}
@@ -18,6 +19,7 @@
     <thead>
       <tr>
         <th>Nombre</th>
+        <th>Apellido</th>
         <th>Email</th>
         <th>Estado</th>
         <th>Acciones</th>
@@ -26,7 +28,8 @@
     <tbody>
       {% for cliente in clientes %}
         <tr{% if not cliente.estado %} style="color: gray;"{% endif %}>
-          <td>{{ cliente.nombre }} {{ cliente.apellido }}</td>
+          <td>{{ cliente.nombre }}</td>
+          <td>{{ cliente.apellido }}</td>
           <td>{{ cliente.email }}</td>
           <td>
             {% if cliente.estado %}
