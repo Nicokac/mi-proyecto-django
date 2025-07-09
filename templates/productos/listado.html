@@ -4,18 +4,21 @@
 {% block contenido %}
   <h2>Listado de Productos</h2>
 
-  <form method="get" style="display: inline;">
+  <!-- <form method="get" style="display: inline;"> -->
+  <form method="get" class="inline-form">
     <input type="text" name="q" placeholder="Buscar..." value="{{ query }}">
     <button type="submit">Buscar</button>
   </form>
 
   {% if query %}
-    <form method="get" action="" style="display: inline;">
+    <!-- <form method="get" action="" style="display: inline;"> -->
+    <form method="get" action="" class="inline-form">
       <button type="submit">Limpiar filtro</button>
     </form>
   {% endif %}
 
-  <table border="1" cellpadding="5">
+  <!-- <table border="1" cellpadding="5"> -->
+  <table>
     <thead>
       <tr>
         <th>Nombre</th>
@@ -35,7 +38,8 @@
     </thead>
     <tbody>
       {% for producto in productos %}
-        <tr{% if not producto.estado %} style="color: gray;"{% endif %}>
+        <!-- <tr{% if not producto.estado %} style="color: gray;"{% endif %}> -->
+        <tr{% if not producto.estado %} class="inactivo"{% endif %}>
           <td>{{ producto.nombre }}</td>
           <td>${{ producto.precio }}</td>
           <td>{{ producto.stock }}</td>
@@ -63,9 +67,11 @@
             <td>
               <td>
                 {% if producto.estado %}
-                  <form action="{% url 'agregar_al_carrito' producto.id %}" method="post" style="display:inline;">
+                  <!-- <form action="{% url 'agregar_al_carrito' producto.id %}" method="post" style="display:inline;"> -->
+                  <form action="{% url 'agregar_al_carrito' producto.id %}" method="post" class="inline-form">  
                     {% csrf_token %}
-                    <input type="number" name="cantidad" min="1" max="{{ producto.stock }}" value="1" style="width: 50px;">
+                    <!-- <input type="number" name="cantidad" min="1" max="{{ producto.stock }}" value="1" style="width: 50px;"> -->
+                    <input type="number" name="cantidad" min="1" max="{{ producto.stock }}" value="1" class="cantidad-input">
                     <button type="submit">Agregar</button>
                   </form>
                 {% else %}

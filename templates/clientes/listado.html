@@ -4,18 +4,21 @@
 {% block contenido %}
   <h2>Listado de Clientes</h2>
 
-  <form method="get" style="display: inline;">
+  <!-- <form method="get" style="display: inline;"> -->
+  <form method="get" class="inline-form">
     <input type="text" name="q" placeholder="Buscar..." value="{{ query }}">
     <button type="submit">Buscar</button>
   </form>
 
   {% if query %}
-    <form method="get" action="" style="display: inline;">
+    <!-- <form method="get" action="" style="display: inline;"> -->
+    <form method="get" action="" class="inline-form">
       <button type="submit">Limpiar filtro</button>
     </form>
   {% endif %}
 
-  <table border="1" cellpadding="5">
+  <!-- <table border="1" cellpadding="5"> -->
+  <table>
     <thead>
       <tr>
         <th>Nombre</th>
@@ -27,7 +30,8 @@
     </thead>
     <tbody>
       {% for cliente in clientes %}
-        <tr{% if not cliente.estado %} style="color: gray;"{% endif %}>
+        <!-- <tr{% if not cliente.estado %} style="color: gray;"{% endif %}> -->
+        <tr{% if not cliente.estado %} class="inactivo"{% endif %}></tr>
           <td>{{ cliente.nombre }}</td>
           <td>{{ cliente.apellido }}</td>
           <td>{{ cliente.email }}</td>

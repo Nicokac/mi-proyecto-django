@@ -3,18 +3,21 @@
 {% block contenido %}
   <h2>Listado de Proveedores</h2>
 
-<form method="get" style="display: inline;">
+<!-- <form method="get" style="display: inline;"> -->
+<form method="get" class="inline-form">
   <input type="text" name="q" placeholder="Buscar..." value="{{ query }}">
   <button type="submit">Buscar</button>
 </form>
 
 {% if query %}
-  <form method="get" action="" style="display: inline;">
+  <!-- <form method="get" action="" style="display: inline;"> -->
+  <form method="get" action="" class="inline-form">
     <button type="submit">Limpiar filtro</button>
   </form>
 {% endif %}
 
-  <table border="1" cellpadding="5">
+  <!-- <table border="1" cellpadding="5"> -->
+  <table>
     <thead>
       <tr>
         <th>Nombre</th>
@@ -28,7 +31,8 @@
     </thead>
     <tbody>
       {% for proveedor in proveedores %}
-        <tr{% if not proveedor.estado %} style="color: gray;"{% endif %}>
+        <!-- <tr{% if not proveedor.estado %} style="color: gray;"{% endif %}> -->
+        <tr{% if not proveedor.estado %} class="inactivo"{% endif %}>
           <td>{{ proveedor.nombre }}</td>
           <td>{{ proveedor.apellido }}</td>
           <td>{{ proveedor.telefono }}</td>

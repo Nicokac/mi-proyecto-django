@@ -1,10 +1,11 @@
 <!--C:\Users\kachu\Python user\Django\tp_ing_soft_ii\templates\base.html-->
 <!DOCTYPE html>
 <html lang="es">
+{% load static %}
 <head>
     <meta charset="UTF-8">
     <title>{% block titulo %}Mi Web Django{% endblock %}</title>
-    <style>
+    <!-- <style>
         .error {
             color: red;
             font-size: 0.9em;
@@ -30,13 +31,15 @@
             border: 1px solid #ccc;
             margin-bottom: 10px;
         }
-    </style>
+    </style> -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
     <header>
         <h1>Café El Mejor</h1>
             {% if user.is_authenticated %}
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+            <!-- <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"> -->
+            <div class="user-info"></div>    
                 <p><strong>Bienvenido:</strong> {{ user.nombre }} {{ user.apellido }}</p>
                 <p><strong>Email:</strong> {{ user.email }}</p>
                 <p><strong>Tipo de usuario:</strong>
