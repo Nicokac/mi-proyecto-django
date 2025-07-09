@@ -24,6 +24,15 @@ class DetalleOrdenForm(forms.ModelForm):
         model = DetalleOrden
         fields = ['producto', 'cantidad']
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and not user.is_staff:
+            proveedor_cafe = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
+            self.fields['producto'].queryset = Producto.objects.filter(estado=True, proveedor=proveedor_cafe)
+        else:
+            self.fields['producto'].queryset = Producto.objects.filter(estado=True)
+
 # ✅ Con esto permitimos eliminar detalles vacíos o no deseados
 DetalleOrdenFormSet = inlineformset_factory(
     OrdenDeCompra,

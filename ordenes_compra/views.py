@@ -16,6 +16,7 @@ from .models import ModificacionOrden, DetalleOrden
 from facturacion.models import Factura
 from clientes.models import Clientes
 from django.forms import inlineformset_factory
+from functools import partial
 
 @login_required
 def registrar_orden_compra(request):
@@ -59,6 +60,13 @@ def registrar_orden_compra(request):
 
             # 3. Ahora sí: inicializamos el formset, pero le pasamos instance=orden
             formset = DetalleOrdenFormSetCarrito(request.POST, instance=orden)
+
+            # --- Filtrar productos solo “Cafe El Mejor” si es cliente ---
+            if not request.user.is_staff:
+                proveedor_cafe = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
+                for f in formset.forms:
+                    f.fields['producto'].queryset = Producto.objects.filter(estado=True, proveedor=proveedor_cafe)
+            # ----------------------------------------------------------
 
             print("POST recibido:", request.POST)
             if formset.is_valid():
@@ -136,6 +144,11 @@ def registrar_orden_compra(request):
                 can_delete=True
             )
             formset = DetalleOrdenFormSetCarrito(initial=initial_data)
+            # --- Filtrar productos solo “Cafe El Mejor” si es cliente ---
+            proveedor_cafe = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
+            for f in formset.forms:
+                f.fields['producto'].queryset = Producto.objects.filter(estado=True, proveedor=proveedor_cafe)
+            # ----------------------------------------------------------
 
     if not request.user.is_staff:
         proveedor_default = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
