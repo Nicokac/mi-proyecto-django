@@ -1,8 +1,8 @@
-# Create your models here.
 # productos/models.py
 from django.db import models
 from proveedores.models import Proveedor
 
+# Create your models here.
 class Producto(models.Model):
     sku = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=100)

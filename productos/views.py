@@ -29,15 +29,19 @@ def registrar_producto(request):
 @login_required
 def listar_productos(request):
     query = request.GET.get('q')
+    if request.user.is_staff:
+        qs = Producto.objects.all()
+    else:
+        qs = Producto.objects.filter(proveedor__nombre__iexact="Cafe El Mejor")
     if query:
-        productos = Producto.objects.filter(
+        productos = qs.filter(
             Q(nombre__icontains=query) |
             Q(sku__icontains=query) |
             Q(precio__icontains=query)
         )
-    else:    
-        productos = Producto.objects.all()
-    return render(request, 'productos/listado.html', {'productos': productos})
+    else:
+        productos = qs
+    return render(request, 'productos/listado.html', {'productos': productos, 'query': query})
 
 @login_required
 def editar_producto(request, producto_id):
@@ -57,8 +61,6 @@ def editar_producto(request, producto_id):
 def dar_baja_producto(request, producto_id):
     if request.user.is_superuser:
         producto = get_object_or_404(Producto, id=producto_id)
-        # producto.estado = False
-        # producto.save()
         producto.delete()
     return redirect('listar_productos')
 
