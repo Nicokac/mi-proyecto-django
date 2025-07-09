@@ -3,16 +3,29 @@
 {% load custom_filters %}
 {% block contenido %}
   <h2>Registrar Orden de Compra</h2>
+
+  {# FORMULARIO DE FILTRO POR PROVEEDOR SOLO PARA ADMIN #}
+  {% if user.is_staff %}
+    <form method="get" style="margin-bottom: 12px;">
+      <label for="proveedor-select">Proveedor:</label>
+      <select name="proveedor" id="proveedor-select" onchange="this.form.submit()">
+        <option value="">Seleccione un proveedor</option>
+        {% for prov in form.fields.proveedor.queryset %}
+          <option value="{{ prov.id }}" {% if proveedor_id|add:""|stringformat:"s" == prov.id|stringformat:"s" %}selected{% endif %}>
+            {{ prov.nombre }}
+          </option>
+        {% endfor %}
+      </select>
+    </form>
+  {% endif %}
+
+  {# FORMULARIO POST PARA REGISTRAR ORDEN #}
   <form method="post">
     {% csrf_token %}
-    
-    {% if user.is_staff %}
-      <div>
-        {{ form.proveedor.label_tag }} {{ form.proveedor }}
-        {% if form.proveedor.errors %}
-          <div class="error">{{ form.proveedor.errors }}</div>
-        {% endif %}
-      </div>
+
+    {# Incluí el proveedor como hidden si es admin y ya seleccionó uno #}
+    {% if user.is_staff and proveedor_id %}
+      <input type="hidden" name="proveedor" value="{{ proveedor_id }}">
     {% endif %}
 
     {{ formset.management_form }}
@@ -46,18 +59,6 @@
               </span>
               {% if user.is_staff %}
                 <div style="font-size: 0.9em; margin-top: 4px;">
-                  <!-- <strong>Precio:</strong>
-                  <span class="precio" data-producto-id="{{ form.producto.value }}">
-                    {{ productos_dict|get_item:form.producto.value|stringformat:"s" }}
-                  </span><br>
-                  <strong>Stock:</strong>
-                  <span class="stock">
-                    {% for p in productos %}
-                      {% if p.id|stringformat:"s" == form.producto.value %}
-                        {{ p.stock }}
-                      {% endif %}
-                    {% endfor %}
-                  </span> -->
                   <strong>Precio:</strong> <span class="precio">$0.00</span><br>
                   <strong>Stock:</strong> <span class="stock">-</span>
                 </div>
@@ -67,7 +68,6 @@
         {% endfor %}
       </tbody>
     </table>
-
     <button type="button" id="agregar-fila">+ Agregar producto</button>
     <br><br>
     <button type="submit">Registrar orden</button>
@@ -140,3 +140,4 @@
     });
   </script>
 {% endblock %}
+

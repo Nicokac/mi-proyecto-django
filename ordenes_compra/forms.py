@@ -25,11 +25,17 @@ class DetalleOrdenForm(forms.ModelForm):
         fields = ['producto', 'cantidad']
 
     def __init__(self, *args, **kwargs):
+        proveedor = kwargs.pop('proveedor', None)
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+
+        # Para clientes (solo Café El Mejor, ya está implementado)
         if user and not user.is_staff:
             proveedor_cafe = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
             self.fields['producto'].queryset = Producto.objects.filter(estado=True, proveedor=proveedor_cafe)
+        # Para admin, filtrar productos por proveedor seleccionado
+        elif proveedor:
+            self.fields['producto'].queryset = Producto.objects.filter(estado=True, proveedor=proveedor)
         else:
             self.fields['producto'].queryset = Producto.objects.filter(estado=True)
 

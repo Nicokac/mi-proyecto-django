@@ -22,9 +22,20 @@ from functools import partial
 def registrar_orden_compra(request):
     producto_id = request.GET.get('producto_id')
     initial_data = []
+    proveedor_id = None
+    proveedor_obj = None
 
     if request.method == 'POST':
-        # --- Recuperar el carrito si sos cliente, para el formset dinámico ---
+        # Recuperar proveedor solo si es admin
+        if request.user.is_staff:
+            proveedor_id = request.POST.get('proveedor')
+            if proveedor_id:
+                try:
+                    proveedor_obj = Proveedor.objects.get(id=proveedor_id)
+                except Proveedor.DoesNotExist:
+                    proveedor_obj = None
+
+        # Recuperar productos seleccionados si sos cliente
         if not request.user.is_staff:
             carrito = request.session.get('carrito', {})
             if carrito:
@@ -34,17 +45,11 @@ def registrar_orden_compra(request):
                 ]
             elif producto_id:
                 initial_data = [{'producto': producto_id}]
-        # Para admin, que sea 1 por default
-        DetalleOrdenFormSetCarrito = inlineformset_factory(
-            OrdenDeCompra,
-            DetalleOrden,
-            form=DetalleOrdenForm,
-            extra=max(1, len(initial_data)),  # mínimo 1 por si viene vacío
-            can_delete=True
-        )
-        form = OrdenDeCompraForm(request.POST)
 
-        # 1. Guardar orden con commit=False (todavía no en DB)
+        # Inicialización del form
+        form = OrdenDeCompraForm(request.POST)
+        # Hasta acá no existe "orden", sólo después de form.save(commit=False)
+
         if form.is_valid():
             orden = form.save(commit=False)
             if not request.user.is_staff:
@@ -55,22 +60,30 @@ def registrar_orden_compra(request):
                 orden.tipo = 'cliente'
             else:
                 orden.tipo = 'proveedor'
+                if proveedor_obj:
+                    orden.proveedor = proveedor_obj
 
-            orden.save()  # 2. ¡Ahora la orden ya tiene ID!
+            orden.save()  # Ahora sí, la orden existe
 
-            # 3. Ahora sí: inicializamos el formset, pero le pasamos instance=orden
-            formset = DetalleOrdenFormSetCarrito(request.POST, instance=orden)
+            # Factory del formset SIN form_kwargs
+            DetalleOrdenFormSetCarrito = inlineformset_factory(
+                OrdenDeCompra,
+                DetalleOrden,
+                form=DetalleOrdenForm,
+                extra=max(1, len(initial_data)),
+                can_delete=True
+            )
+            # Ahora pasamos form_kwargs aquí al instanciar:
+            formset = DetalleOrdenFormSetCarrito(
+                request.POST,
+                instance=orden,
+                form_kwargs={
+                    'proveedor': proveedor_obj if request.user.is_staff else None,
+                    'user': request.user
+                }
+            )
 
-            # --- Filtrar productos solo “Cafe El Mejor” si es cliente ---
-            if not request.user.is_staff:
-                proveedor_cafe = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
-                for f in formset.forms:
-                    f.fields['producto'].queryset = Producto.objects.filter(estado=True, proveedor=proveedor_cafe)
-            # ----------------------------------------------------------
-
-            print("POST recibido:", request.POST)
             if formset.is_valid():
-                print("✅ Formularios válidos")
                 with transaction.atomic():
                     detalles = formset.save(commit=False)
                     for detalle in detalles:
@@ -82,23 +95,22 @@ def registrar_orden_compra(request):
                             detalle.producto.stock -= detalle.cantidad
                         detalle.producto.save()
 
-                    # 🧾 Crear factura automáticamente si es cliente (ahora con precios asignados)
+                    # Crear factura si es cliente
                     if orden.tipo == 'cliente':
                         ultimo_numero = Factura.objects.count() + 1
                         numero_factura = f"F-{ultimo_numero:06d}"
-
                         total_factura = sum(
                             detalle.precio_unitario * detalle.cantidad
                             for detalle in detalles
                         )
-
                         factura = Factura.objects.create(
                             numero=numero_factura,
                             cliente=orden.cliente,
                             total=total_factura,
                             orden=orden
                         )
-                    # --- LIMPIAR EL CARRITO LUEGO DE CONFIRMAR ORDEN ---
+
+                    # Limpiar carrito
                     if not request.user.is_staff:
                         request.session['carrito'] = {}
 
@@ -111,19 +123,34 @@ def registrar_orden_compra(request):
         else:
             print("❌ Formulario OrdenDeCompra inválido")
             print("Errores:", form.errors)
+
     else:
         print("📄 GET recibido")
         if request.user.is_staff:
+            proveedor_id = request.GET.get('proveedor')
+            if proveedor_id:
+                try:
+                    proveedor_obj = Proveedor.objects.get(id=proveedor_id)
+                except Proveedor.DoesNotExist:
+                    proveedor_obj = None
+
             proveedores = Proveedor.objects.exclude(nombre__iexact="Cafe El Mejor")
             form = OrdenDeCompraForm()
             form.fields['proveedor'].queryset = proveedores
-            formset = inlineformset_factory(
+
+            if proveedor_obj:
+                form.fields['proveedor'].initial = proveedor_obj.id
+
+            DetalleOrdenFormSetCarrito = inlineformset_factory(
                 OrdenDeCompra,
                 DetalleOrden,
                 form=DetalleOrdenForm,
                 extra=1,
                 can_delete=True
-            )()
+            )
+            formset = DetalleOrdenFormSetCarrito(
+                form_kwargs={'proveedor': proveedor_obj, 'user': request.user}
+            )
         else:
             form = OrdenDeCompraForm()
             form.fields['proveedor'].widget = forms.HiddenInput()
@@ -135,7 +162,6 @@ def registrar_orden_compra(request):
                 ]
             elif producto_id:
                 initial_data = [{'producto': producto_id}]
-            # --- El formset con la cantidad de productos del carrito ---
             DetalleOrdenFormSetCarrito = inlineformset_factory(
                 OrdenDeCompra,
                 DetalleOrden,
@@ -143,18 +169,19 @@ def registrar_orden_compra(request):
                 extra=max(1, len(initial_data)),
                 can_delete=True
             )
-            formset = DetalleOrdenFormSetCarrito(initial=initial_data)
-            # --- Filtrar productos solo “Cafe El Mejor” si es cliente ---
-            proveedor_cafe = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
-            for f in formset.forms:
-                f.fields['producto'].queryset = Producto.objects.filter(estado=True, proveedor=proveedor_cafe)
-            # ----------------------------------------------------------
+            formset = DetalleOrdenFormSetCarrito(
+                initial=initial_data,
+                form_kwargs={'user': request.user}
+            )
 
     if not request.user.is_staff:
         proveedor_default = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
         productos_activos = Producto.objects.filter(estado=True, proveedor=proveedor_default)
     else:
-        productos_activos = Producto.objects.filter(estado=True)
+        if proveedor_obj:
+            productos_activos = Producto.objects.filter(estado=True, proveedor=proveedor_obj)
+        else:
+            productos_activos = Producto.objects.none()
 
     productos_dict = {str(p.id): float(p.precio) for p in productos_activos}
     productos_stock = {str(p.id): p.stock for p in productos_activos}
@@ -166,6 +193,7 @@ def registrar_orden_compra(request):
         'productos_json': json.dumps(productos_dict),
         'stocks_json': json.dumps(productos_stock),
         'productos_dict': productos_dict,
+        'proveedor_id': proveedor_id or "",
     })
 
 @login_required
