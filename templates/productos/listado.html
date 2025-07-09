@@ -19,12 +19,17 @@
     <thead>
       <tr>
         <th>Nombre</th>
-        <th>SKU</th>
         <th>Precio</th>
         <th>Stock</th>
-        <th>Estado</th>
         {% if user.is_staff %}
+          <th>SKU</th>
+          <th>Categoría</th>
+          <th>Empaque</th>
+          <th>Estado</th>
+          <th>Proveedor</th>
           <th>Acciones</th>
+        {% else %}
+          <th>Orden de compra</th>
         {% endif %}
       </tr>
     </thead>
@@ -32,25 +37,42 @@
       {% for producto in productos %}
         <tr{% if not producto.estado %} style="color: gray;"{% endif %}>
           <td>{{ producto.nombre }}</td>
-          <td>{{ producto.sku }}</td>
           <td>${{ producto.precio }}</td>
           <td>{{ producto.stock }}</td>
-          <td>
-            {% if producto.estado %}
-              Activo
-            {% else %}
-              Inactivo
-            {% endif %}
-          </td>
           {% if user.is_staff %}
-          <td>
-            {% if producto.estado %}
-              <a href="{% url 'editar_producto' producto.id %}">Editar</a> |
-              <a href="{% url 'dar_baja_producto' producto.id %}">Dar de baja</a>
-            {% else %}
-              <a href="{% url 'reactivar_producto' producto.id %}">Reactivar</a>
-            {% endif %}
-          </td>
+            <td>{{ producto.sku }}</td>
+            <td>{{ producto.categoria }}</td>
+            <td>{{ producto.empaque }}</td>
+            <td>
+              {% if producto.estado %}
+                Activo
+              {% else %}
+                Inactivo
+              {% endif %}
+            </td>
+            <td>{{ producto.proveedor }}</td>
+            <td>
+              {% if producto.estado %}
+                <a href="{% url 'editar_producto' producto.id %}">Editar</a> |
+                <a href="{% url 'dar_baja_producto' producto.id %}">Dar de baja</a>
+              {% else %}
+                <a href="{% url 'reactivar_producto' producto.id %}">Reactivar</a>
+              {% endif %}
+            </td>
+          {% else %}
+            <td>
+              <td>
+                {% if producto.estado %}
+                  <form action="{% url 'agregar_al_carrito' producto.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="number" name="cantidad" min="1" max="{{ producto.stock }}" value="1" style="width: 50px;">
+                    <button type="submit">Agregar</button>
+                  </form>
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+            </td>
           {% endif %}
         </tr>
       {% endfor %}

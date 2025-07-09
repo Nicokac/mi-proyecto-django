@@ -21,7 +21,11 @@ class OrdenDeCompra(models.Model):
     cliente = models.ForeignKey(Clientes, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f'Orden #{self.id} - {self.proveedor.nombre}'
+        try:
+            proveedor_nombre = self.proveedor.nombre
+        except Exception:
+            proveedor_nombre = "Sin proveedor"
+        return f'Orden #{self.id} - {proveedor_nombre}'
 
 class DetalleOrden(models.Model):
     orden = models.ForeignKey(OrdenDeCompra, on_delete=models.CASCADE, related_name='detalles')
@@ -29,6 +33,7 @@ class DetalleOrden(models.Model):
     cantidad = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
 
+    @property
     def subtotal(self):
         return self.cantidad * self.precio_unitario
     

@@ -1,0 +1,38 @@
+<!--templates\productos\ver_carrito.html-->
+{% extends 'base.html' %}
+{% block contenido %}
+  <h2>Mi carrito</h2>
+  <form method="post" action="{% url 'actualizar_carrito' %}">
+    {% csrf_token %}
+    <table border="1" cellpadding="5">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Precio</th>
+          <th>Cantidad</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in carrito_items %}
+          <tr>
+            <td>{{ item.producto.nombre }}</td>
+            <td>${{ item.producto.precio }}</td>
+            <td>
+              <input type="number" name="cantidad_{{ item.producto.id }}" min="0" max="{{ item.producto.stock }}" value="{{ item.cantidad }}">
+            </td>
+            <td>${{ item.subtotal }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4">El carrito está vacío.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <br>
+    <button type="submit">Actualizar cantidades</button>
+  </form>
+  <br>
+  <p><strong>Total:</strong> ${{ total }}</p>
+  <br>
+  <a href="{% url 'registrar_orden' %}">Confirmar y registrar orden de compra</a>
+{% endblock %}
