@@ -3,6 +3,9 @@
 {% block contenido %}
   <h2>Listado de Proveedores</h2>
 
+  {% if user.is_staff %}
+    <a href="{% url 'registrar_proveedor' %}" class="boton" style="margin-bottom: 18px; display: inline-block;">+ Registrar proveedor</a>
+  {% endif %}
 <!-- <form method="get" style="display: inline;"> -->
 <form method="get" class="inline-form">
   <input type="text" name="q" placeholder="Buscar..." value="{{ query }}">

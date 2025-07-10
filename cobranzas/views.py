@@ -31,6 +31,11 @@ def registrar_cobranza(request):
                 cobranza.cliente = cliente
                 cobranza.fecha_pago = datetime.now()
                 cobranza.save()
+                # ===> ACTUALIZAR FACTURA:
+                factura = cobranza.factura
+                if factura.estado != 'pagada':
+                    factura.estado = 'pagada'
+                    factura.save()
                 messages.success(request, "✅ Cobranza registrada exitosamente.")
                 return redirect('listar_cobranzas')
     else:

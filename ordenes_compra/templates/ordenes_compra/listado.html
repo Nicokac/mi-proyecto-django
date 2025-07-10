@@ -25,6 +25,12 @@
   <a href="{% url 'listar_ordenes' %}"><button type="button">Limpiar filtros</button></a>
 </form>
 
+{% if user.is_staff %}
+  <a href="{% url 'registrar_orden' %}" class="boton" style="margin-bottom:18px; display:inline-block;">
+    + Registrar nueva orden de compra
+    </a>
+{% endif %}
+  </a>
 <table border="1" cellpadding="5">
   <thead>
     <tr>
@@ -43,13 +49,15 @@
       <td>{{ orden.fecha_emision }}</td>
       <td>{{ orden.estado|yesno:"Activa,Inactiva" }}</td>
       <td>
-        <a href="{% url 'detalle_orden' orden.id %}">Ver detalles</a>
-        {% if orden.estado %}
-          <a href="{% url 'dar_baja_orden' orden.id %}" onclick="return confirm('¿Estás seguro de que querés dar de baja esta orden de compra?');">Dar de baja</a>
-        {% endif %}
-        {% if user.is_staff %}
-  |       <a href="{% url 'modificar_orden' orden.id %}">Modificar</a>
-        {% endif %}
+          <a href="{% url 'detalle_orden' orden.id %}">Ver detalles</a>
+          {% if orden.estado %}
+            <a href="{% url 'dar_baja_orden' orden.id %}" onclick="return confirm('¿Estás seguro de que querés dar de baja esta orden de compra?');">Dar de baja</a>
+          {% endif %}
+          {% if orden.factura and orden.factura.estado == 'pendiente' %}
+              {% if user.is_staff or user.clientes.id == orden.cliente.id %}
+                  | <a href="{% url 'modificar_orden' orden.id %}">Modificar</a>
+              {% endif %}
+          {% endif %}
       </td>
     </tr>
     {% endfor %}

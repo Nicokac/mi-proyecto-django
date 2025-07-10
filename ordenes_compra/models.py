@@ -32,10 +32,15 @@ class DetalleOrden(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
 
-    @property
-    def subtotal(self):
-        return self.cantidad * self.precio_unitario
+    def save(self, *args, **kwargs):
+        # Asegura siempre que subtotal sea correcto
+        self.subtotal = self.cantidad * self.precio_unitario
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.producto.nombre} x{self.cantidad}"
     
 class ModificacionOrden(models.Model):
     orden = models.ForeignKey(OrdenDeCompra, on_delete=models.CASCADE, related_name='modificaciones')

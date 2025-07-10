@@ -17,6 +17,10 @@ from facturacion.models import Factura
 from clientes.models import Clientes
 from django.forms import inlineformset_factory
 from functools import partial
+from proveedores.models import Proveedor
+from django.core.exceptions import ObjectDoesNotExist
+from facturacion.models import Factura, DetalleFactura
+from facturacion.models import DetalleFactura
 
 @login_required
 def registrar_orden_compra(request):
@@ -247,8 +251,27 @@ def dar_baja_orden(request, orden_id):
 def modificar_orden(request, orden_id):
     orden = get_object_or_404(OrdenDeCompra, pk=orden_id)
 
-    if not request.user.is_staff:
+    # Permiso: admin o cliente dueño
+    es_admin = request.user.is_staff or request.user.is_superuser
+    es_cliente_duenio = (
+        hasattr(request.user, 'clientes')
+        and orden.cliente
+        and orden.cliente.usuario == request.user
+    )
+
+    # Buscar factura relacionada
+    factura = getattr(orden, 'factura', None)
+    if not factura:
+        from facturacion.models import Factura
+        factura = Factura.objects.filter(orden=orden).first()
+
+    # Solo permitir modificar si pendiente y autorizado
+    if not (es_admin or es_cliente_duenio):
         return HttpResponseForbidden("No tenés permiso para modificar esta orden.")
+
+    if factura and factura.estado != 'pendiente':
+        messages.error(request, "La orden no puede ser modificada porque ya fue pagada/cobrada.")
+        return redirect('listar_ordenes')
 
     if request.method == 'POST':
         form = OrdenDeCompraForm(request.POST, instance=orden)
@@ -266,7 +289,14 @@ def modificar_orden(request, orden_id):
             else:
                 with transaction.atomic():
                     # Forzar campos clave antes de guardar
-                    if not request.user.is_staff:
+                    try:
+                        proveedor_obj = orden.proveedor  # intenta acceder, lanza excepción si no existe
+                    except ObjectDoesNotExist:
+                        from proveedores.models import Proveedor
+                        proveedor_default = Proveedor.objects.get(nombre__iexact="Cafe El Mejor")
+                        orden.proveedor = proveedor_default
+                        orden.save()
+                    if not es_admin:
                         form.instance.proveedor = orden.proveedor
                         form.instance.tipo = 'cliente'
                     else:
@@ -289,6 +319,7 @@ def modificar_orden(request, orden_id):
                     for detalle in detalles:
                         detalle.orden = orden
                         detalle.precio_unitario = detalle.producto.precio
+                        detalle.subtotal = detalle.cantidad * detalle.precio_unitario  # asegurá el subtotal!
                         detalle.save()
 
                         if orden.tipo == 'proveedor':
@@ -297,6 +328,23 @@ def modificar_orden(request, orden_id):
                             detalle.producto.stock -= detalle.cantidad
 
                         detalle.producto.save()
+
+                    # ------- ACTUALIZAR FACTURA y DETALLES -------
+                    if factura and factura.estado == 'pendiente':
+                        factura.detalles.all().delete()
+                        total_factura = 0
+                        for detalle in orden.detalles.all():
+                            DetalleFactura.objects.create(
+                                factura=factura,
+                                producto=detalle.producto,
+                                cantidad=detalle.cantidad,
+                                precio_unitario=detalle.precio_unitario,
+                                subtotal=detalle.cantidad * detalle.precio_unitario
+                            )
+                            total_factura += detalle.cantidad * detalle.precio_unitario
+                        factura.total = total_factura
+                        factura.save()
+                        messages.info(request, "La factura asociada se actualizó con los nuevos productos y total.")
 
                     # Registrar historial de cambios
                     productos_modificados = ", ".join([f"{d.producto.nombre} (x{d.cantidad})" for d in detalles])

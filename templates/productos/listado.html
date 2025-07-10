@@ -4,6 +4,9 @@
 {% block contenido %}
   <h2>Listado de Productos</h2>
 
+  {% if user.is_staff %}
+    <a href="{% url 'registrar_producto' %}" class="boton" style="margin-bottom: 16px; display: inline-block;">+ Registrar producto</a>
+  {% endif %}  
   <!-- <form method="get" style="display: inline;"> -->
   <form method="get" class="inline-form">
     <input type="text" name="q" placeholder="Buscar..." value="{{ query }}">
