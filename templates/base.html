@@ -5,122 +5,52 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block titulo %}Mi Web Django{% endblock %}</title>
-    <!-- <style>
-        .error {
-            color: red;
-            font-size: 0.9em;
-        }
-        .mensaje-success {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 10px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
-        .mensaje-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
-        .mensaje-warning {
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 10px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
-    </style> -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
-<body>
-    <header>
-        <h1>Café El Mejor</h1>
+<body class="{% block body_class %}{% endblock %}">
+    <header class="header-main">
+        <div class="header-left">
+            <span class="logo">☕</span>
+            <span class="brand">Café El Mejor</span>
+        </div>
+        <div class="header-right">
             {% if user.is_authenticated %}
-            <!-- <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"> -->
-            <div class="user-info"></div>    
-                <p><strong>Bienvenido:</strong> {{ user.nombre }} {{ user.apellido }}</p>
-                <p><strong>Email:</strong> {{ user.email }}</p>
-                <p><strong>Tipo de usuario:</strong>
-                    {% if user.is_superuser %}
-                        Administrador
-                    {% else %}
-                        Cliente
-                    {% endif %}
-                </p>
-                <p>
-                    <a href="{% url 'inicio' %}">🏠 Ir al inicio</a> |
-                    <a href="{% url 'logout' %}">Cerrar sesión</a>
-                </p>
-                {% if user.is_staff %}
-                <nav>
-                    <h3>Clientes</h3>
-                    <ul>
-                        <li><a href="{% url 'listar_clientes' %}">Ver clientes</a></li>
-                        <li><a href="{% url 'registrar_cliente' %}">Registrar cliente</a></li>
-                    </ul>
-
-                    <h3>Productos</h3>
-                    <ul>
-                        <li><a href="{% url 'listar_productos' %}">Ver productos</a></li>
-                        <li><a href="{% url 'registrar_producto' %}">Registrar producto</a></li>
-                    </ul>
-
-                    <h3>Proveedores</h3>
-                    <ul>
-                        <li><a href="{% url 'listar_proveedores' %}">Ver proveedores</a></li>
-                        <li><a href="{% url 'registrar_proveedor' %}">Registrar proveedor</a></li>
-                    </ul>
-
-                    <h3>Órdenes de compra</h3>
-                    <ul>
-                        <li><a href="{% url 'listar_ordenes' %}">Ver órdenes de compra</a></li>
-                        <li><a href="{% url 'registrar_orden' %}">Registrar orden de compra</a></li>
-                    </ul>
-                    <h3>Facturación</h3>
-                    <ul>
-                        <li><a href="{% url 'listar_facturas' %}">Ver facturas</a></li>
-                    </ul>
-                    <h3>Cobranzas</h3>
-                    <ul>
-                        <li><a href="{% url 'registrar_cobranza' %}">Registrar cobranza</a></li>
-                         <li><a href="{% url 'listar_cobranzas' %}">Ver cobranzas</a></li>
-                    </ul>
-                </nav>
-                {% else %}
-                <nav>
-                    <h3>Productos</h3>
-                    <ul>
-                        <li><a href="{% url 'listar_productos' %}">Ver productos</a></li>
-                        <a href="{% url 'ver_carrito' %}">🛒 Ver carrito</a>
-                    </ul>
-
-                    <h3>Órdenes de compra</h3>
-                    <ul>
-                        <li><a href="{% url 'listar_ordenes' %}">Mis órdenes</a></li>
-                        <li><a href="{% url 'registrar_orden' %}">Registrar orden de compra</a></li>
-                    </ul>
-                    <h3>Facturación</h3>
-                    <ul>
-                        <li><a href="{% url 'listar_facturas' %}">Ver facturas</a></li>
-                    </ul>
-                    <h3>Cobranzas</h3>
-                    <ul>
-                        <li><a href="{% url 'registrar_cobranza' %}">Registrar cobranza</a></li>
-                         <li><a href="{% url 'listar_cobranzas' %}">Ver cobranzas</a></li>
-                    </ul>
-                </nav>
-                {% endif %}
-            </div>
+                <span class="user-info-header">
+                    <strong>{{ user.nombre }} {{ user.apellido }}</strong> | {{ user.email }} | 
+                    {% if user.is_superuser %}Administrador{% else %}Cliente{% endif %}
+                </span>
+                <a href="{% url 'inicio' %}">Inicio</a> |
+                <a href="{% url 'logout' %}">Cerrar sesión</a>
+            {% else %}
+                <a href="{% url 'login' %}">Iniciar sesión</a>
             {% endif %}
+        </div>
     </header>
+
+    {% if user.is_authenticated %}
+    <nav class="main-nav">
+        {% if user.is_staff %}
+            <a href="{% url 'listar_clientes' %}">Clientes</a>
+            <a href="{% url 'listar_productos' %}">Productos</a>
+            <a href="{% url 'listar_proveedores' %}">Proveedores</a>
+            <a href="{% url 'listar_ordenes' %}">Órdenes</a>
+            <a href="{% url 'listar_facturas' %}">Facturas</a>
+            <a href="{% url 'listar_cobranzas' %}">Cobranzas</a>
+        {% else %}
+            <a href="{% url 'listar_productos' %}">Productos</a>
+            <a href="{% url 'ver_carrito' %}">Orden de Compra</a>
+            <a href="{% url 'listar_ordenes' %}">Mis órdenes</a>
+            <a href="{% url 'listar_facturas' %}">Facturas</a>
+            <a href="{% url 'listar_cobranzas' %}">Cobranzas</a>
+        {% endif %}
+    </nav>
+    {% endif %}
 
     <main>
         {% if messages %}
             {% for message in messages %}
                 <div class="
-                    {% if message.tags == 'success' %}mensaje-success;
+                    {% if message.tags == 'success' %}mensaje-success
                     {% elif message.tags == 'error' %}mensaje-error
                     {% else %}mensaje-warning
                     {% endif %}
@@ -139,3 +69,4 @@
     </footer>
 </body>
 </html>
+

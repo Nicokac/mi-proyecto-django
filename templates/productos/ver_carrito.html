@@ -1,7 +1,8 @@
 <!--templates\productos\ver_carrito.html-->
 {% extends 'base.html' %}
 {% block contenido %}
-  <h2>Mi carrito</h2>
+  <!-- <h2>Mi carrito</h2> -->
+  <h2>Orden de Compra</h2>
   <form method="post" action="{% url 'actualizar_carrito' %}">
     {% csrf_token %}
     <!-- <table border="1" cellpadding="5"> -->
@@ -35,5 +36,5 @@
   <br>
   <p><strong>Total:</strong> ${{ total }}</p>
   <br>
-  <a href="{% url 'registrar_orden' %}">Confirmar y registrar orden de compra</a>
+  <a href="{% url 'registrar_orden' %}" class="boton">Confirmar y registrar orden de compra</a>
 {% endblock %}

@@ -55,3 +55,347 @@ th, td {
 .inactivo {
     color: gray;
 }
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f6f7fa;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #333840;
+    color: #fff;
+    padding: 18px 24px 18px 36px;
+    margin-bottom: 0;
+    border-radius: 0 0 14px 14px;
+}
+
+header h1 {
+    margin: 0 0 18px 0;
+    font-size: 2.2em;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.user-info {
+    background: none;
+    border: none;
+    margin: 0 0 12px 0;
+    color: #fff;
+}
+
+.user-info p strong {
+    color: #ffc107;
+}
+
+header nav {
+    margin-top: 6px;
+}
+header nav h3 {
+    color: #ffc107;
+    margin-bottom: 4px;
+    font-size: 1.1em;
+    letter-spacing: 1px;
+}
+header nav ul {
+    list-style: none;
+    margin: 0 0 8px 0;
+    padding: 0;
+}
+header nav ul li {
+    margin-bottom: 4px;
+}
+header nav ul li a,
+header nav ul a {
+    color: #17a2b8;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 1px 2px;
+    border-radius: 3px;
+    transition: color .18s, background .18s;
+}
+header nav ul li a:hover,
+header nav ul a:hover {
+    color: #fff;
+    background: #17a2b8;
+}
+
+header a {
+    color: #ffeb3b;
+    text-decoration: underline;
+    margin-right: 10px;
+    font-weight: 600;
+}
+header a:last-child { margin-right: 0; }
+
+main {
+    background: #fff;
+    border-radius: 12px;
+    margin: 24px auto 0 auto;
+    padding: 36px 36px 20px 36px;
+    min-height: 250px;
+    max-width: 1300px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+}
+
+footer {
+    background: #333840;
+    color: #ccc;
+    text-align: center;
+    padding: 15px 0 9px 0;
+    margin-top: 32px;
+    border-radius: 12px 12px 0 0;
+    font-size: 1em;
+}
+
+h2, h3 {
+    color: #343a40;
+    font-weight: 700;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    background: #f8f9fb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border-radius: 8px;
+    overflow: hidden;
+}
+th, td {
+    padding: 10px 8px;
+    border: 1px solid #eee;
+    text-align: left;
+}
+th {
+    background: #f2f2f2;
+    font-weight: bold;
+}
+
+tr.inactivo {
+    color: #b0b0b0;
+    background: #f6f7fa;
+}
+
+tr:hover {
+    background: #e8f4fa;
+}
+
+input, select, button {
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    padding: 7px 10px;
+    font-size: 1em;
+    margin-bottom: 6px;
+}
+
+button, .btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background .2s;
+    padding: 8px 16px;
+    font-weight: 500;
+    border-radius: 5px;
+}
+button:hover, .btn:hover {
+    background: #0056b3;
+}
+.inline-form {
+    display: inline;
+}
+
+.mensaje-success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    border-radius: 7px;
+}
+.mensaje-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    border-radius: 7px;
+}
+.mensaje-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    border-radius: 7px;
+}
+
+.cantidad-input {
+    width: 60px;
+}
+
+td a {
+    color: #007bff;
+    text-decoration: none;
+    padding: 3px 7px;
+    border-radius: 5px;
+    transition: background 0.18s;
+}
+td a:hover {
+    background: #e3e7ff;
+}
+td a.btn {
+    background: #007bff;
+    color: white;
+    padding: 6px 12px;
+    font-weight: 500;
+}
+
+.header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #35383a;
+    color: #fff;
+    padding: 10px 30px;
+    border-bottom: 2px solid #ddd;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.logo {
+    font-size: 2em;
+    margin-right: 10px;
+}
+.brand {
+    font-weight: bold;
+    font-size: 1.5em;
+    letter-spacing: 1px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1em;
+}
+
+.user-info-header {
+    margin-right: 15px;
+    font-size: 0.98em;
+}
+
+.main-nav {
+    background: #f8f8f8;
+    padding: 8px 30px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    gap: 18px;
+    font-size: 1.08em;
+}
+.main-nav a {
+    color: #1a1a1a;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.18s;
+}
+.main-nav a:hover {
+    color: #CA982C; /* Un dorado tipo café */
+}
+.main-nav a.active {
+    color: #CA982C; /* Un dorado tipo café */
+    font-weight: bold;
+}
+
+.boton {
+    background: #1976d2;
+    color: white;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.2s;
+    display: inline-block;
+    margin-right: 8px;
+}
+.boton:hover {
+    background: #135ba1;
+}
+
+.contenedor-login {
+    max-width: 370px;
+    margin: 40px auto 0 auto;
+    background: #fff;
+    padding: 32px 28px 20px 28px;
+    border-radius: 16px;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.06);
+    text-align: center;
+}
+
+.form-login {
+    max-width: 420px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 24px 24px 18px 24px;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px #0001;
+    display: flex;
+    flex-direction: column;
+    gap: 3px; /* <<< Esto controla la separación */
+}
+
+.form-login label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    text-align: left;
+}
+
+.form-login input[type="text"],
+.form-login input[type="email"],
+.form-login input[type="password"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 1em;
+    margin-bottom: 2px;
+}
+
+.form-login button.boton {
+    width: 100%;
+    padding: 10px 0;
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.2s;
+}
+
+.form-login button.boton:hover {
+    background: #1256a4;
+}
+
+@media (max-width: 500px) {
+    .form-login {
+        min-width: unset;
+        width: 96vw;
+        padding: 18px 5px;
+    }
+}
+
+.contenedor-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 75vh;
+}

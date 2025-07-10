@@ -29,7 +29,7 @@
 
     <button type="submit">Filtrar</button>
     {% if filtros.numero or filtros.cliente or filtros.tipo_pago %}
-      <a href="{% url 'listar_cobranzas' %}">Limpiar filtros</a>
+      <a href="{% url 'listar_cobranzas' %}" class="boton">Limpiar filtros</a>
     {% endif %}
   </form>
 
@@ -72,8 +72,7 @@
   {% endfor %}
     </tbody>
   </table>
-
   <br>
-  <a href="{% url 'registrar_cobranza' %}">Registrar nueva cobranza</a>
+  <a href="{% url 'registrar_cobranza' %}" class="boton">Registrar nueva cobranza</a>
 {% endblock %}
 
